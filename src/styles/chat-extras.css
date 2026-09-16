@@ -1,0 +1,172 @@
+/* =========================================
+   PER-CHAT WALLPAPERS
+========================================= */
+.wallpaper-picker {
+  position: relative;
+}
+
+.wallpaper-picker-popup {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  box-shadow: var(--shadow-lg);
+  padding: 0.9rem;
+  width: 220px;
+  z-index: 50;
+}
+
+.wallpaper-picker-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-bottom: 0.6rem;
+}
+
+.wallpaper-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+}
+
+.wallpaper-swatch {
+  aspect-ratio: 1;
+  border-radius: 10px;
+  border: 2px solid var(--border-color);
+  background-color: var(--bg-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.12s ease, border-color 0.12s ease;
+}
+
+.wallpaper-swatch:hover {
+  transform: scale(1.06);
+}
+
+.wallpaper-swatch.active {
+  border-color: var(--accent);
+}
+
+.wallpaper-swatch-check {
+  color: #fff;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5));
+}
+
+/* =========================================
+   MESSAGE EFFECTS OVERLAY
+========================================= */
+.effect-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 999;
+}
+
+.effect-particle {
+  position: absolute;
+  top: -10%;
+  will-change: transform, opacity;
+}
+
+.effect-particle.fall {
+  animation-name: effectFall;
+  animation-timing-function: ease-in;
+  animation-fill-mode: forwards;
+}
+
+.effect-particle.rise {
+  bottom: -10%;
+  top: auto;
+  animation-name: effectRise;
+  animation-timing-function: ease-out;
+  animation-fill-mode: forwards;
+}
+
+@keyframes effectFall {
+  0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+  100% { transform: translate(var(--drift), 115vh) rotate(360deg); opacity: 0.9; }
+}
+
+@keyframes effectRise {
+  0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+  100% { transform: translate(var(--drift), -115vh) rotate(-20deg); opacity: 0.9; }
+}
+
+/* =========================================
+   MOOD / VIBE STATUS
+========================================= */
+.mood-picker {
+  position: relative;
+}
+
+.mood-emoji {
+  line-height: 1;
+}
+
+.mood-picker-popup {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  box-shadow: var(--shadow-lg);
+  padding: 0.75rem;
+  width: 220px;
+  z-index: 50;
+}
+
+.mood-picker-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-bottom: 0.5rem;
+  padding: 0 0.2rem;
+}
+
+.mood-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.25rem;
+}
+
+.mood-picker-option {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.5rem;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  color: var(--text-primary);
+}
+
+.mood-picker-option:hover {
+  background-color: var(--bg-hover);
+}
+
+.mood-picker-option.active {
+  background-color: var(--accent-soft);
+  font-weight: 600;
+}
+
+.mood-picker-emoji {
+  font-size: 1rem;
+}
+
+.mood-picker-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mood-picker-trigger {
+  font-size: 1.1rem;
+}
