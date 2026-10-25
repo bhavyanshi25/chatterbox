@@ -278,7 +278,7 @@
   }
 
   .chat-window-back {
-    display: flex;
+    display: flex !important;
   }
 
   .hidden-mobile {
