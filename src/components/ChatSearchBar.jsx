@@ -1,33 +1,40 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { Search, X, ChevronUp, ChevronDown } from 'lucide-react';
 
-export default function ChatSearchBar({ conversation, onJumpToMessage, onClose }) {
+function findMatches(messages, query) {
+  if (!query.trim()) return [];
+  const lower = query.toLowerCase();
+  return messages.filter((m) => !m.deleted && m.text?.toLowerCase().includes(lower));
+}
+
+export default function ChatSearchBar({ messages, onJumpToMessage, onClose }) {
   const [query, setQuery] = useState('');
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  const matches = useMemo(() => {
-    if (!query.trim()) return [];
-    const lower = query.toLowerCase();
-    return conversation.messages.filter((m) => !m.deleted && m.text.toLowerCase().includes(lower));
-  }, [query, conversation.messages]);
+  const matches = useMemo(
+    () => findMatches(messages, query),
+    [query, messages]
+  );
+  // Messages can change (edits/deletes) while searching — keep the index in range.
+  const safeIndex = matches.length === 0 ? 0 : Math.min(currentIndex, matches.length - 1);
 
-  useEffect(() => {
+  const handleQueryChange = (value) => {
+    setQuery(value);
     setCurrentIndex(0);
-    if (matches.length > 0) {
-      onJumpToMessage(matches[0].id);
-    }
-  }, [matches]);
+    const next = findMatches(messages, value);
+    if (next.length > 0) onJumpToMessage(next[0].id);
+  };
 
   const goNext = () => {
     if (matches.length === 0) return;
-    const next = (currentIndex + 1) % matches.length;
+    const next = (safeIndex + 1) % matches.length;
     setCurrentIndex(next);
     onJumpToMessage(matches[next].id);
   };
 
   const goPrev = () => {
     if (matches.length === 0) return;
-    const prev = (currentIndex - 1 + matches.length) % matches.length;
+    const prev = (safeIndex - 1 + matches.length) % matches.length;
     setCurrentIndex(prev);
     onJumpToMessage(matches[prev].id);
   };
@@ -35,7 +42,8 @@ export default function ChatSearchBar({ conversation, onJumpToMessage, onClose }
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      e.shiftKey ? goPrev() : goNext();
+      if (e.shiftKey) goPrev();
+      else goNext();
     }
     if (e.key === 'Escape') onClose();
   };
@@ -46,15 +54,15 @@ export default function ChatSearchBar({ conversation, onJumpToMessage, onClose }
       <input
         type="text"
         className="chat-search-input"
-        placeholder="Search in this conversation"
+        placeholder="Search loaded messages"
         value={query}
-        onChange={(e) => setQuery(e.target.value)}
+        onChange={(e) => handleQueryChange(e.target.value)}
         onKeyDown={handleKeyDown}
         autoFocus
       />
       {query.trim() && (
         <span className="chat-search-count">
-          {matches.length === 0 ? '0 results' : `${currentIndex + 1} of ${matches.length}`}
+          {matches.length === 0 ? '0 results' : `${safeIndex + 1} of ${matches.length}`}
         </span>
       )}
       <button className="chat-search-nav-btn" onClick={goPrev} disabled={matches.length === 0} aria-label="Previous match">

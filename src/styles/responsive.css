@@ -1,0 +1,176 @@
+/* =========================================
+   RESPONSIVE OVERRIDES
+   Loaded last so it can refine the base layout without editing it.
+========================================= */
+.chat-app {
+  height: 100vh;
+  height: 100dvh; /* accounts for mobile browser toolbars */
+  overflow: hidden;
+}
+
+.navbar {
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.navbar-brand {
+  flex-shrink: 0;
+}
+
+.navbar-actions {
+  min-width: 0;
+}
+
+/* Tablet: keep both panes, give the chat more room. */
+@media (max-width: 1024px) and (min-width: 769px) {
+  .sidebar {
+    width: 280px;
+    min-width: 280px;
+  }
+
+  .message-bubble-wrap {
+    max-width: 75%;
+  }
+}
+
+/* Mobile: one pane at a time (see .visible-mobile / .hidden-mobile in layout.css). */
+@media (max-width: 768px) {
+  .navbar {
+    padding: 0.6rem 0.75rem;
+  }
+
+  .navbar-actions {
+    gap: 0.15rem;
+  }
+
+  .navbar-user,
+  .navbar-user-btn {
+    padding: 0.2rem;
+  }
+
+  .sidebar-search {
+    padding: 0.75rem;
+  }
+
+  .sidebar-search-icon {
+    left: 1.35rem;
+  }
+
+  .chat-window-header {
+    padding: 0.6rem 0.75rem;
+    gap: 0.5rem;
+  }
+
+  .chat-window-header .navbar-icon-btn {
+    width: 34px;
+    height: 34px;
+  }
+
+  .chat-window-messages {
+    padding: 1rem 0.75rem;
+  }
+
+  .message-bubble-wrap {
+    max-width: 82%;
+  }
+
+  .message-bubble-wrap.editing {
+    width: 92%;
+    max-width: 92%;
+  }
+
+  .call-notice-bar,
+  .chat-search-bar,
+  .reply-preview-bar,
+  .attachment-preview-bar,
+  .attachment-error {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  .jump-to-bottom-btn {
+    right: 0.75rem;
+  }
+
+  .message-input-bar {
+    padding: 0.6rem;
+    gap: 0.35rem;
+  }
+
+  .message-input-icon-btn {
+    width: 34px;
+    height: 34px;
+  }
+
+  /* 16px stops iOS Safari from zooming into the field on focus. */
+  .message-input-textarea {
+    font-size: 16px;
+    min-width: 0;
+  }
+
+  .emoji-picker-wrap {
+    left: 0.5rem;
+  }
+
+  .contact-card {
+    flex-wrap: wrap;
+  }
+
+  .profile-card {
+    padding: 1.5rem 1.1rem;
+  }
+
+  .profile-avatar-input-row {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar-brand span {
+    display: none;
+  }
+
+  .navbar-icon-btn {
+    width: 34px;
+    height: 34px;
+  }
+
+  .chat-window-header .navbar-icon-btn {
+    width: 30px;
+    height: 30px;
+  }
+
+  .chat-window-header .navbar-icon-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .mood-picker-popup,
+  .wallpaper-picker-popup {
+    max-width: calc(100vw - 1.5rem);
+  }
+
+  .message-image {
+    max-height: 240px;
+  }
+
+  .landing-nav {
+    padding: 1rem;
+  }
+
+  .landing-nav-actions .btn {
+    padding: 0.6rem 0.9rem;
+  }
+
+  .profile-mood-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .wrapped-title {
+    font-size: 2.25rem;
+  }
+
+  .wrapped-title-big {
+    font-size: 3.75rem;
+  }
+}

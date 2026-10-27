@@ -14,6 +14,7 @@ export default function ProfilePage() {
   const [bio, setBio] = useState(currentUser?.bio || '');
   const [avatarUrl, setAvatarUrl] = useState(currentUser?.avatar || '');
   const [savedFlash, setSavedFlash] = useState(false);
+  const [error, setError] = useState('');
 
   const currentMoodId = currentUser?.mood || 'none';
 
@@ -22,22 +23,29 @@ export default function ProfilePage() {
     setTimeout(() => setSavedFlash(false), 1500);
   };
 
-  const handleSaveName = () => {
-    if (!name.trim()) return;
-    updateProfile({ name: name.trim() });
-    setEditingName(false);
-    flashSaved();
+  // Saves to the server; shows the server's validation message on failure.
+  const save = async (fields) => {
+    setError('');
+    try {
+      await updateProfile(fields);
+      flashSaved();
+      return true;
+    } catch (err) {
+      setError(err.message);
+      return false;
+    }
   };
 
-  const handleSaveBio = () => {
-    updateProfile({ bio: bio.trim() });
-    flashSaved();
+  const handleSaveName = async () => {
+    if (!name.trim()) return;
+    if (await save({ name: name.trim() })) setEditingName(false);
   };
+
+  const handleSaveBio = () => save({ bio: bio.trim() });
 
   const handleSaveAvatar = () => {
     if (!avatarUrl.trim()) return;
-    updateProfile({ avatar: avatarUrl.trim() });
-    flashSaved();
+    save({ avatar: avatarUrl.trim() });
   };
 
   return (
@@ -50,6 +58,7 @@ export default function ProfilePage() {
       </header>
 
       <div className="profile-card slide-up">
+        {error && <div className="auth-error fade-in">{error}</div>}
         <div className="profile-avatar-section">
           <AvatarRing src={currentUser?.avatar} alt={currentUser?.name} online size={90} />
           <div className="profile-avatar-input-row">
@@ -65,7 +74,7 @@ export default function ProfilePage() {
             </button>
           </div>
           <p className="profile-avatar-hint">
-            No file upload yet (needs a backend) — paste a direct image link for now, e.g. from{' '}
+            Paste a direct http(s) image link, e.g. from{' '}
             <a href="https://i.pravatar.cc" target="_blank" rel="noreferrer">
               i.pravatar.cc
             </a>
@@ -127,8 +136,7 @@ export default function ProfilePage() {
                 key={m.id}
                 className={`mood-picker-option ${currentMoodId === m.id ? 'active' : ''}`}
                 onClick={() => {
-                  updateMood(m.id);
-                  flashSaved();
+                  updateMood(m.id).then(flashSaved, (err) => setError(err.message));
                 }}
               >
                 <span className="mood-picker-emoji">{m.emoji}</span>

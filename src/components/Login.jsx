@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { MessageCircle, Mail, Lock, Eye, EyeOff, Moon, Sun, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -7,31 +7,23 @@ import { useTheme } from '../context/ThemeContext';
 const REMEMBERED_EMAIL_KEY = 'chatapp_remembered_email';
 
 export default function Login() {
-  const { login } = useAuth();
+  const { login, sessionError } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(() => localStorage.getItem(REMEMBERED_EMAIL_KEY) || '');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  useEffect(() => {
-    const savedEmail = localStorage.getItem(REMEMBERED_EMAIL_KEY);
-    if (savedEmail) {
-      setEmail(savedEmail);
-      setRememberMe(true);
-    }
-  }, []);
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setSubmitting(true);
     try {
-      login({ email: email.trim(), password });
+      await login({ email: email.trim(), password });
 
       if (rememberMe) {
         localStorage.setItem(REMEMBERED_EMAIL_KEY, email.trim());
@@ -61,7 +53,11 @@ export default function Login() {
         <div className="auth-card slide-up">
           <p className="auth-subtitle">Welcome back. Log in to keep the conversation going.</p>
 
-          {error && <div className="auth-error fade-in">{error}</div>}
+          {(error || sessionError) && (
+            <div className="auth-error fade-in" role="alert">
+              {error || sessionError}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="auth-form">
             <label className="auth-field">

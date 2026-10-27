@@ -10,8 +10,8 @@ export default function SettingsPage() {
   const { theme, toggleTheme } = useTheme();
   const { soundEnabled, toggleSound, effectsEnabled, toggleEffects } = useSettings();
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     navigate('/login');
   };
 

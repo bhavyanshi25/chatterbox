@@ -1,92 +1,97 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
+import { api, SESSION_EXPIRED_EVENT } from '../api/client';
 
 const AuthContext = createContext(null);
 
+// The session lives in an httpOnly cookie set by the server, so the browser
+// never sees the token. On load we ask the server who we are.
 export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [sessionError, setSessionError] = useState('');
 
   useEffect(() => {
-    const stored = localStorage.getItem('chatapp_current_user');
-    if (stored) setCurrentUser(JSON.parse(stored));
-    setLoading(false);
+    let cancelled = false;
+    api
+      .get('/api/auth/me')
+      .then((data) => {
+        if (!cancelled) setCurrentUser(data.user);
+      })
+      .catch((err) => {
+        // 401 just means "not logged in"; anything else is worth surfacing.
+        if (!cancelled && err.status !== 401) setSessionError(err.message);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  const getStoredUsers = () => {
-    const raw = localStorage.getItem('chatapp_users');
-    return raw ? JSON.parse(raw) : [];
+  useEffect(() => {
+    const onExpired = () => setCurrentUser(null);
+    window.addEventListener(SESSION_EXPIRED_EVENT, onExpired);
+    return () => window.removeEventListener(SESSION_EXPIRED_EVENT, onExpired);
+  }, []);
+
+  const register = async ({ name, email, password }) => {
+    const { user } = await api.post('/api/auth/register', { name, email, password });
+    setSessionError('');
+    setCurrentUser(user);
+    return user;
   };
 
-  const register = ({ name, email, password }) => {
-    const users = getStoredUsers();
-    if (users.some((u) => u.email === email)) {
-      throw new Error('An account with this email already exists.');
+  const login = async ({ email, password }) => {
+    const { user } = await api.post('/api/auth/login', { email, password });
+    setSessionError('');
+    setCurrentUser(user);
+    return user;
+  };
+
+  const logout = async () => {
+    try {
+      await api.post('/api/auth/logout');
+    } finally {
+      // Even if the request fails, forget the user locally.
+      setCurrentUser(null);
     }
-    const newUser = {
-      id: 'me',
-      name,
-      email,
-      password, // mock only — see earlier warning about real auth
-      avatar: `https://i.pravatar.cc/150?u=${encodeURIComponent(email)}`,
-      mood: 'none',
-      bio: '',
-    };
-    localStorage.setItem('chatapp_users', JSON.stringify([...users, newUser]));
-    localStorage.setItem('chatapp_current_user', JSON.stringify(newUser));
-    setCurrentUser(newUser);
-    return newUser;
   };
 
-  const login = ({ email, password }) => {
-    const users = getStoredUsers();
-    const found = users.find((u) => u.email === email && u.password === password);
-    if (!found) {
-      throw new Error('Invalid email or password.');
-    }
-    localStorage.setItem('chatapp_current_user', JSON.stringify(found));
-    setCurrentUser(found);
-    return found;
+  // Updates any subset of profile fields (name, bio, avatar, mood).
+  const updateProfile = async (fields) => {
+    const { user } = await api.patch('/api/users/me', fields);
+    setCurrentUser(user);
+    return user;
   };
 
-  const logout = () => {
-    localStorage.removeItem('chatapp_current_user');
-    setCurrentUser(null);
-  };
+  const updateMood = (mood) => updateProfile({ mood });
 
-  const updateMood = (mood) => {
-    setCurrentUser((prev) => {
-      if (!prev) return prev;
-      const updated = { ...prev, mood };
-      localStorage.setItem('chatapp_current_user', JSON.stringify(updated));
-      const users = getStoredUsers();
-      const updatedUsers = users.map((u) => (u.id === prev.id ? { ...u, mood } : u));
-      localStorage.setItem('chatapp_users', JSON.stringify(updatedUsers));
-      return updated;
-    });
-  };
-
-  // Updates any subset of profile fields (name, bio, avatar).
-  const updateProfile = (fields) => {
-    setCurrentUser((prev) => {
-      if (!prev) return prev;
-      const updated = { ...prev, ...fields };
-      localStorage.setItem('chatapp_current_user', JSON.stringify(updated));
-      const users = getStoredUsers();
-      const updatedUsers = users.map((u) => (u.id === prev.id ? { ...u, ...fields } : u));
-      localStorage.setItem('chatapp_users', JSON.stringify(updatedUsers));
-      return updated;
-    });
+  // Applies profile changes made in another tab/device (via the socket).
+  const syncUser = (user) => {
+    setCurrentUser((prev) => (prev && prev.id === user.id ? { ...prev, ...user } : prev));
   };
 
   return (
     <AuthContext.Provider
-      value={{ currentUser, loading, login, register, logout, updateMood, updateProfile }}
+      value={{
+        currentUser,
+        loading,
+        sessionError,
+        login,
+        register,
+        logout,
+        updateMood,
+        updateProfile,
+        syncUser,
+      }}
     >
       {children}
     </AuthContext.Provider>
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error('useAuth must be used within AuthProvider');

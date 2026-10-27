@@ -1,4 +1,5 @@
-import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   MessageCircle,
   Sparkles,
@@ -10,6 +11,7 @@ import {
   ArrowRight,
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
+import { useAuth } from '../context/AuthContext';
 
 const FEATURES = [
   {
@@ -46,6 +48,23 @@ const FEATURES = [
 
 export default function LandingPage() {
   const { theme, toggleTheme } = useTheme();
+  const { login } = useAuth();
+  const navigate = useNavigate();
+  const [demoError, setDemoError] = useState('');
+  const [openingDemo, setOpeningDemo] = useState(false);
+
+  const openDemo = async () => {
+    setDemoError('');
+    setOpeningDemo(true);
+    try {
+      await login({ email: 'alice@demo.chatterbox.test', password: 'demo-password' });
+      navigate('/chat');
+    } catch (err) {
+      setDemoError(err.message || 'Could not open the demo. Please try again.');
+    } finally {
+      setOpeningDemo(false);
+    }
+  };
 
   return (
     <div className="landing-page">
@@ -82,7 +101,23 @@ export default function LandingPage() {
           <Link to="/login" className="btn btn-ghost landing-cta">
             I already have an account
           </Link>
+          {import.meta.env.DEV && (
+            <button
+              type="button"
+              className="btn btn-ghost landing-cta"
+              onClick={openDemo}
+              disabled={openingDemo}
+            >
+              <Users size={16} />
+              {openingDemo ? 'Opening demo…' : 'Explore demo people'}
+            </button>
+          )}
         </div>
+        {demoError && (
+          <p className="auth-error fade-in" role="alert">
+            {demoError}
+          </p>
+        )}
       </section>
 
       <section className="landing-features">

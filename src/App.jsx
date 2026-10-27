@@ -12,12 +12,18 @@ import SettingsPage from './components/SettingsPage';
 import WrappedPage from './components/WrappedPage';
 import ContactsPage from './components/ContactsPage';
 import ProtectedRoute from './components/ProtectedRoute';
-import './index.css';
 
 function AppRoutes() {
   const { currentUser, loading } = useAuth();
 
-  if (loading) return null;
+  if (loading) {
+    return (
+      <div className="app-loading" role="status">
+        <span className="app-loading-spinner" />
+        Loading ChatterBox…
+      </div>
+    );
+  }
 
   return (
     <Routes>
@@ -34,7 +40,7 @@ function AppRoutes() {
         element={currentUser ? <Navigate to="/chat" replace /> : <Register />}
       />
       <Route
-        path="/chat"
+        path="/chat/:conversationId?"
         element={
           <ProtectedRoute>
             <ChatLayout />

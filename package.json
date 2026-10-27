@@ -1,5 +1,5 @@
 {
-  "name": "fee_project",
+  "name": "chatterbox",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -7,14 +7,18 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "dev:server": "npm --prefix server run dev",
+    "test": "npm --prefix server test",
+    "seed": "npm --prefix server run seed"
   },
   "dependencies": {
     "emoji-picker-react": "^4.22.2",
     "lucide-react": "^1.45.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
-    "react-router-dom": "^7.18.3"
+    "react-router-dom": "^7.18.3",
+    "socket.io-client": "^4.8.4"
   },
   "devDependencies": {
     "@babel/core": "^7.29.7",

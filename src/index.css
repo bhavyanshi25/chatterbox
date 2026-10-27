@@ -6,3 +6,6 @@
 @import './styles/message-input.css';
 @import './styles/chat-extras.css';
 @import './styles/pages.css';
+@import './styles/chat-features.css';
+@import './styles/realtime.css';
+@import './styles/responsive.css';

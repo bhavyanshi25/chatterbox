@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 
 export default function Register() {
-  const { register } = useAuth();
+  const { register, sessionError } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
 
@@ -17,12 +17,12 @@ export default function Register() {
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters.');
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters.');
       return;
     }
     if (password !== confirmPassword) {
@@ -32,7 +32,7 @@ export default function Register() {
 
     setSubmitting(true);
     try {
-      register({ name: name.trim(), email: email.trim(), password });
+      await register({ name: name.trim(), email: email.trim(), password });
       navigate('/chat');
     } catch (err) {
       setError(err.message || 'Something went wrong. Please try again.');
@@ -55,7 +55,11 @@ export default function Register() {
         <div className="auth-card slide-up">
           <p className="auth-subtitle">Create an account to start chatting.</p>
 
-          {error && <div className="auth-error fade-in">{error}</div>}
+          {(error || sessionError) && (
+            <div className="auth-error fade-in" role="alert">
+              {error || sessionError}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="auth-form">
             <label className="auth-field">
@@ -97,7 +101,7 @@ export default function Register() {
                 <input
                   type={showPassword ? 'text' : 'password'}
                   className="input-field"
-                  placeholder="At least 6 characters"
+                  placeholder="At least 8 characters"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required

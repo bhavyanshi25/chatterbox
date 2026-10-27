@@ -4,20 +4,30 @@ import { ArrowLeft, Search, MessageSquarePlus } from 'lucide-react';
 import { useChat } from '../context/ChatContext';
 import AvatarRing from './AvatarRing';
 import { getMoodEmoji } from '../data/moods';
+import { formatLastSeen } from '../utils/formatTime';
 
 export default function ContactsPage() {
   const navigate = useNavigate();
   const { users, startConversationWith } = useChat();
   const [query, setQuery] = useState('');
+  const [error, setError] = useState('');
+  const [startingWith, setStartingWith] = useState(null);
 
   const filtered = useMemo(
     () => users.filter((u) => u.name.toLowerCase().includes(query.toLowerCase())),
     [users, query]
   );
 
-  const handleMessage = (userId) => {
-    startConversationWith(userId);
-    navigate('/chat');
+  const handleMessage = async (userId) => {
+    setError('');
+    setStartingWith(userId);
+    try {
+      const conversationId = await startConversationWith(userId);
+      navigate(`/chat/${conversationId}`);
+    } catch (err) {
+      setError(err.message);
+      setStartingWith(null);
+    }
   };
 
   return (
@@ -44,7 +54,15 @@ export default function ContactsPage() {
         </div>
 
         <div className="contacts-list">
-          {filtered.length === 0 && <p className="sidebar-empty">No one matches that search.</p>}
+          {error && <div className="auth-error">{error}</div>}
+          {users.length === 0 && (
+            <p className="sidebar-empty">
+              Nobody else has joined yet. Ask a friend to create an account, then they'll show up here.
+            </p>
+          )}
+          {users.length > 0 && filtered.length === 0 && (
+            <p className="sidebar-empty">No one matches that search.</p>
+          )}
 
           {filtered.map((u) => {
             const moodEmoji = getMoodEmoji(u.mood);
@@ -61,13 +79,14 @@ export default function ContactsPage() {
                     {u.isGroup && <span className="contact-card-badge">Group</span>}
                   </span>
                   <span className="contact-card-status">
-                    {u.online ? 'Online now' : 'Offline'}
+                    {u.online ? 'Online now' : formatLastSeen(u.lastSeen)}
                   </span>
                 </div>
 
                 <button
                   className="btn btn-primary contact-card-btn"
                   onClick={() => handleMessage(u.id)}
+                  disabled={startingWith === u.id}
                 >
                   <MessageSquarePlus size={15} /> Message
                 </button>

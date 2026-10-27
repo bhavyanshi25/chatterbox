@@ -1,31 +1,14 @@
-import { createContext, useContext, useState } from 'react';
-import { getSetting, setSetting } from '../utils/settingsStorage';
+import { createContext, useContext } from 'react';
+import { useLocalStorage } from '../hooks/useLocalStorage';
 
 const SettingsContext = createContext(null);
 
 export function SettingsProvider({ children }) {
-  const [soundEnabled, setSoundEnabledState] = useState(() =>
-    getSetting('soundEnabled', true)
-  );
-  const [effectsEnabled, setEffectsEnabledState] = useState(() =>
-    getSetting('effectsEnabled', true)
-  );
+  const [soundEnabled, setSoundEnabled] = useLocalStorage('chatapp_settings_soundEnabled', true);
+  const [effectsEnabled, setEffectsEnabled] = useLocalStorage('chatapp_settings_effectsEnabled', true);
 
-  const toggleSound = () => {
-    setSoundEnabledState((prev) => {
-      const next = !prev;
-      setSetting('soundEnabled', next);
-      return next;
-    });
-  };
-
-  const toggleEffects = () => {
-    setEffectsEnabledState((prev) => {
-      const next = !prev;
-      setSetting('effectsEnabled', next);
-      return next;
-    });
-  };
+  const toggleSound = () => setSoundEnabled((prev) => !prev);
+  const toggleEffects = () => setEffectsEnabled((prev) => !prev);
 
   return (
     <SettingsContext.Provider
@@ -36,6 +19,7 @@ export function SettingsProvider({ children }) {
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useSettings() {
   const ctx = useContext(SettingsContext);
   if (!ctx) throw new Error('useSettings must be used within SettingsProvider');

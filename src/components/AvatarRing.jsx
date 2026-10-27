@@ -1,4 +1,4 @@
-export default function AvatarRing({ src, alt, online, size = 44 }) {
+export default function AvatarRing({ src, alt, online, size = 44, showStatus = true }) {
   return (
     <div
       className={`avatar-ring-wrap ${online ? 'online' : 'offline'}`}
@@ -10,10 +10,12 @@ export default function AvatarRing({ src, alt, online, size = 44 }) {
         className="avatar avatar-ring-img"
         style={{ width: size, height: size }}
       />
-      <span
-        className={`avatar-status-dot ${online ? 'online' : 'offline'}`}
-        title={online ? 'Online' : 'Offline'}
-      />
+      {showStatus && (
+        <span
+          className={`avatar-status-dot ${online ? 'online' : 'offline'}`}
+          title={online ? 'Online' : 'Offline'}
+        />
+      )}
     </div>
   );
 }

@@ -1,6 +1,7 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { Image, Check } from 'lucide-react';
 import { useChat } from '../context/ChatContext';
+import { useClickOutside } from '../hooks/useClickOutside';
 import { WALLPAPERS } from '../data/wallpapers';
 
 export default function WallpaperPicker({ conversationId }) {
@@ -8,13 +9,7 @@ export default function WallpaperPicker({ conversationId }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
 
-  useEffect(() => {
-    function handleClickOutside(e) {
-      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
-    }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  useClickOutside(ref, () => setOpen(false), open);
 
   const currentId = getConversationWallpaper(conversationId);
 

@@ -1,0 +1,423 @@
+/* =========================================
+   MESSAGE LIST WRAPPER + JUMP TO BOTTOM
+========================================= */
+.chat-window-messages-wrap {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-window-messages {
+  min-height: 0;
+  overflow-x: hidden;
+}
+
+.jump-to-bottom-btn {
+  position: absolute;
+  right: 1.25rem;
+  bottom: 1rem;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--bg-primary);
+  color: var(--accent);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-md);
+  z-index: 4;
+  transition: transform 0.15s ease, background-color 0.15s ease;
+}
+
+.jump-to-bottom-btn:hover {
+  transform: translateY(-2px);
+  background-color: var(--accent-soft);
+}
+
+.chat-window-no-messages {
+  margin: auto;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+/* =========================================
+   CONVERSATION NOT FOUND
+========================================= */
+.chat-not-found {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  text-align: center;
+  padding: 2rem 1.5rem;
+  max-width: 340px;
+}
+
+.chat-not-found h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.chat-not-found p {
+  font-size: 0.88rem;
+  margin-bottom: 0.5rem;
+}
+
+/* =========================================
+   DATE DIVIDERS
+========================================= */
+.date-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0.6rem 0 0.2rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.date-divider::before,
+.date-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background-color: var(--border-color);
+}
+
+.date-divider span {
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  white-space: nowrap;
+}
+
+/* =========================================
+   HEADER NAME TRUNCATION
+========================================= */
+.chat-window-header-info {
+  flex: 1;
+}
+
+.chat-window-name {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.chat-window-name-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chat-window-header-actions {
+  flex-shrink: 0;
+}
+
+.call-notice-bar svg {
+  flex-shrink: 0;
+}
+
+/* =========================================
+   BUBBLE EXTRAS
+========================================= */
+.message-text {
+  overflow-wrap: anywhere;
+}
+
+.message-bubble {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.message-bubble:focus {
+  outline: none;
+}
+
+.message-bubble:focus-visible {
+  box-shadow: 0 0 0 2px var(--accent);
+}
+
+/* Touch devices have no hover: tapping a bubble focuses it and reveals its actions. */
+.message-bubble:focus-within .message-hover-actions {
+  display: flex;
+}
+
+/* Received messages sit on the left, so open their actions and popups inward. */
+.message-row.theirs .message-hover-actions {
+  right: auto;
+  left: -8px;
+}
+
+.message-row.theirs .message-react-popup,
+.message-row.theirs .message-delete-popup {
+  right: auto;
+  left: -10px;
+}
+
+.message-reply-quote {
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.message-reply-quote-name,
+.message-reply-quote-text {
+  display: block;
+}
+
+.message-edited {
+  font-style: italic;
+}
+
+/* =========================================
+   IMAGE MESSAGES
+========================================= */
+.message-bubble.has-image {
+  padding: 0.3rem 0.3rem 0.45rem;
+}
+
+.message-bubble.has-image .message-text,
+.message-bubble.has-image .message-meta,
+.message-bubble.has-image .message-reply-quote,
+.message-bubble.has-image .message-edit {
+  margin-left: 0.6rem;
+  margin-right: 0.6rem;
+}
+
+.message-bubble.has-image .message-reply-quote {
+  width: auto;
+  margin-top: 0.3rem;
+}
+
+.message-bubble.has-image .message-text {
+  margin-top: 0.35rem;
+}
+
+.message-image-link {
+  display: block;
+}
+
+.message-image {
+  display: block;
+  max-width: min(320px, 100%);
+  max-height: 320px;
+  width: auto;
+  height: auto;
+  border-radius: 12px;
+  object-fit: cover;
+  background-color: rgba(0, 0, 0, 0.08);
+}
+
+.message-image-unavailable {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 0.8rem;
+  border-radius: 12px;
+  background-color: rgba(0, 0, 0, 0.1);
+  font-size: 0.78rem;
+  font-style: italic;
+  max-width: 260px;
+}
+
+.message-image-unavailable svg {
+  flex-shrink: 0;
+}
+
+/* =========================================
+   INLINE MESSAGE EDITING
+========================================= */
+.message-bubble-wrap.editing {
+  width: min(420px, 85%);
+  max-width: 85%;
+}
+
+.message-bubble-wrap.editing .message-bubble {
+  width: 100%;
+}
+
+.message-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  min-width: 0;
+}
+
+.message-edit-input {
+  width: 100%;
+  resize: vertical;
+  min-height: 2.6rem;
+  max-height: 160px;
+  padding: 0.5rem 0.65rem;
+  border-radius: 10px;
+  border: 1.5px solid var(--border-color);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 0.88rem;
+  line-height: 1.4;
+}
+
+.message-edit-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.message-edit-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.4rem;
+}
+
+.message-edit-cancel,
+.message-edit-save {
+  padding: 0.35rem 0.8rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border-radius: 7px;
+}
+
+.message-bubble.sent .message-edit-cancel {
+  color: var(--bubble-sent-text);
+}
+
+.message-bubble.sent .message-edit-cancel:hover {
+  background-color: rgba(255, 255, 255, 0.18);
+  color: var(--bubble-sent-text);
+}
+
+.message-edit-save {
+  background-color: var(--bg-primary);
+  color: var(--accent);
+}
+
+.message-edit-save:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* =========================================
+   EMOJI PICKER ANCHOR
+========================================= */
+.emoji-picker-anchor {
+  display: flex;
+  flex-shrink: 0;
+}
+
+.emoji-picker-wrap {
+  bottom: calc(100% + 8px);
+  left: 0.75rem;
+  width: min(300px, calc(100vw - 1.5rem));
+}
+
+.emoji-picker-loading {
+  height: 350px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--bg-primary);
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+/* =========================================
+   IMAGE ATTACHMENT PREVIEW
+========================================= */
+.attachment-preview-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 1.25rem;
+  background-color: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+  min-width: 0;
+}
+
+.attachment-preview {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.attachment-preview img {
+  display: block;
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-tertiary);
+}
+
+.attachment-preview-remove {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background-color: var(--text-primary);
+  color: var(--bg-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-sm);
+}
+
+.attachment-preview-remove:hover {
+  background-color: var(--danger);
+  color: #fff;
+}
+
+.attachment-preview-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.attachment-preview-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.attachment-preview-size {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.attachment-error {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 1.25rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--danger);
+  background-color: rgba(239, 68, 68, 0.08);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.attachment-error svg {
+  flex-shrink: 0;
+}
+
+.attachment-error span {
+  flex: 1;
+  min-width: 0;
+}
+
+.attachment-error button {
+  color: inherit;
+  display: flex;
+  flex-shrink: 0;
+}

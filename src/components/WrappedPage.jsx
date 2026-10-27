@@ -1,25 +1,55 @@
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { X } from 'lucide-react';
 import { useChat } from '../context/ChatContext';
 import { useAuth } from '../context/AuthContext';
-import { computeChatStats } from '../utils/chatStats';
 import EffectOverlay from './EffectOverlay';
 
 const CARD_DURATION = 3200;
 const SUMMARY_DURATION = 6000;
 
+// Loads the user's real stats from the server, then plays the story.
 export default function WrappedPage() {
   const navigate = useNavigate();
-  const { conversations, getUserById, activeEffect, clearEffect, triggerEffect } = useChat();
+  const { fetchStats } = useChat();
+  const [stats, setStats] = useState(null);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchStats().then(
+      (s) => !cancelled && setStats(s),
+      (err) => !cancelled && setError(err.message)
+    );
+    return () => {
+      cancelled = true;
+    };
+  }, [fetchStats]);
+
+  if (!stats) {
+    return (
+      <div className="wrapped-page" style={{ background: 'linear-gradient(160deg, #7c7ff2, #9b7fd6)' }}>
+        <button className="wrapped-close" onClick={() => navigate('/chat')} aria-label="Close">
+          <X size={22} />
+        </button>
+        <div className="wrapped-content">
+          <span className="wrapped-emoji-badge">{error ? '😕' : '⏳'}</span>
+          <p className="wrapped-subtitle" role="status">
+            {error ? `Couldn't load your recap: ${error}` : 'Crunching your numbers…'}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return <WrappedStory stats={stats} />;
+}
+
+function WrappedStory({ stats }) {
+  const navigate = useNavigate();
+  const { activeEffect, clearEffect, triggerEffect } = useChat();
   const { currentUser } = useAuth();
   const [index, setIndex] = useState(0);
-  const timerRef = useRef(null);
-
-  const stats = useMemo(
-    () => computeChatStats(conversations, getUserById),
-    [conversations, getUserById]
-  );
 
   const cards = useMemo(() => {
     return [
@@ -104,18 +134,26 @@ export default function WrappedPage() {
     setIndex((i) => Math.max(0, i - 1));
   };
 
+  const cardCount = cards.length;
+  const isSummaryCard = Boolean(cards[index]?.summary);
+  const isOutroCard = Boolean(cards[index]?.outro);
+
+  // Auto-advance. Depends only on primitives so new chat activity (which
+  // rebuilds `cards`) doesn't restart the current card's timer.
   useEffect(() => {
-    const isSummary = cards[index]?.summary;
-    clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(goNext, isSummary ? SUMMARY_DURATION : CARD_DURATION);
-    return () => clearTimeout(timerRef.current);
-  }, [index]);
+    const timer = setTimeout(
+      () => {
+        if (index >= cardCount - 1) navigate('/chat');
+        else setIndex((i) => i + 1);
+      },
+      isSummaryCard ? SUMMARY_DURATION : CARD_DURATION
+    );
+    return () => clearTimeout(timer);
+  }, [index, cardCount, isSummaryCard, navigate]);
 
   useEffect(() => {
-    if (cards[index]?.outro) {
-      triggerEffect('confetti');
-    }
-  }, [index]);
+    if (isOutroCard) triggerEffect('confetti');
+  }, [isOutroCard, triggerEffect]);
 
   const card = cards[index];
   const duration = card?.summary ? SUMMARY_DURATION : CARD_DURATION;
